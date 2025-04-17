@@ -1,9 +1,15 @@
+const api = axios.create({
+    baseURL: 'https://api.themoviedb.org/3',
+    params: {
+        'api_key': API_KEY,
+    }
+});
+
 async function getTrendingMoviesPreview() {
-    const res = await fetch('https://api.themoviedb.org/3/trending/movie/day?api_key=' + API_KEY);
-    const data = await res.json();
+    const {data} = await api('/trending/movie/day'); //con {data} indicamos que solo queremos que nos devuelva la propiedad data
     const movies = data.results;
 
-    const trendingPreviewMoviesContainer= document.querySelector('#trendingPreview .trendingPreview-movieList');
+    trendingMoviesPreviewList.innerHTML = "";
 
     movies.forEach(movie => {
         const movieContainer = document.createElement('div');
@@ -14,16 +20,16 @@ async function getTrendingMoviesPreview() {
         movieImg.setAttribute('src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
 
         movieContainer.appendChild(movieImg);
-        trendingPreviewMoviesContainer.appendChild(movieContainer);
+        trendingMoviesPreviewList.appendChild(movieContainer); //trendingMoviesPreviewList esta en node.js
     });
 }
 
 async function getCategoriesPreview() {
-    const res = await fetch('https://api.themoviedb.org/3/genre/movie/list?api_key=' + API_KEY);
-    const data = await res.json();
+    const {data} = await api('/genre/movie/list');
     const categories = data.genres;
+    
+    categoriesPreviewList.innerHTML = "";
 
-    const trendingCategoriesContainer= document.querySelector('#categoriesPreview .categoriesPreview-list');
     categories.forEach(category => {
         const categoriesContainer = document.createElement('div');
         categoriesContainer.classList.add('category-container');
@@ -34,9 +40,6 @@ async function getCategoriesPreview() {
 
         categoryH3.appendChild(categoryTitleText);
         categoriesContainer.appendChild(categoryH3);
-        trendingCategoriesContainer.appendChild(categoriesContainer);
+        categoriesPreviewList.appendChild(categoriesContainer); 
     });
 }
-
-getTrendingMoviesPreview();
-getCategoriesPreview();
