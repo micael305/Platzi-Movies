@@ -5,13 +5,10 @@ const api = axios.create({
     }
 });
 
+//Utils
 
-async function getTrendingMoviesPreview() {
-
-    const {data} = await api('/trending/movie/day'); //con {data} indicamos que solo queremos que nos devuelva la propiedad data
-    const movies = data.results;
-
-    trendingMoviesPreviewList.innerHTML = "";
+async function createMovies(movies, container) {
+    container.innerHTML = "";
 
     movies.forEach(movie => {
         const movieContainer = document.createElement('div');
@@ -22,15 +19,12 @@ async function getTrendingMoviesPreview() {
         movieImg.setAttribute('src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
 
         movieContainer.appendChild(movieImg);
-        trendingMoviesPreviewList.appendChild(movieContainer); //trendingMoviesPreviewList esta en node.js
+        container.appendChild(movieContainer);
     });
 }
 
-async function getCategoriesPreview() {
-    const {data} = await api('/genre/movie/list');
-    const categories = data.genres;
-    
-    categoriesPreviewList.innerHTML = "";
+async function createCategories(categories, container) {
+    container.innerHTML = "";
 
     categories.forEach(category => {
         const categoriesContainer = document.createElement('div');
@@ -45,8 +39,25 @@ async function getCategoriesPreview() {
         });
         categoryTitle.appendChild(categoryTitleText);
         categoriesContainer.appendChild(categoryTitle);
-        categoriesPreviewList.appendChild(categoriesContainer); 
+        container.appendChild(categoriesContainer); 
     });
+}
+
+//Llamdo a APIS
+
+async function getTrendingMoviesPreview() {
+
+    const {data} = await api('/trending/movie/day'); //con {data} indicamos que solo queremos que nos devuelva la propiedad data
+    const movies = data.results;
+
+    createMovies(movies, trendingMoviesPreviewList);
+}
+
+async function getCategoriesPreview() {
+    const {data} = await api('/genre/movie/list');
+    const categories = data.genres;
+    
+    createCategories(categories, categoriesPreviewList);
 }
 
 async function getMoviesByCategory(id) {
@@ -57,18 +68,17 @@ async function getMoviesByCategory(id) {
     });
 
     const movies = data.results;
-    genericSection.innerHTML = "";
 
-    movies.forEach(movie => {
-        const movieContainer = document.createElement('div');
-        movieContainer.classList.add('movie-container');
-        const movieImg = document.createElement('img');
-        movieImg.classList.add('movie-img');
-        movieImg.setAttribute('alt', movie.title);
-        movieImg.setAttribute('src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
+    createMovies(movies, genericSection);
 
-        movieContainer.appendChild(movieImg);
-        genericSection.appendChild(movieContainer);
+}
+
+async function getMoviesBySearch(query) {
+    const {data} = await api('/search/movie', {
+        params: {
+            query,
+        },
     });
-
+    const movies = data.results;
+    createMovies(movies, genericSection);
 }
